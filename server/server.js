@@ -24,15 +24,22 @@ const io = new Server(server, {
 // listen to event
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
-
   // connection is established and we can access the same connection with different browsers from different users that are on the same URL ("http://localhost:5173")
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+  });
 
   // on the backend we listen for the "send_message" event that we get from frontend
   // data is the data sent from frontend
   socket.on("send_message", (data) => {
     // send data to everyone who is connected to the socket server:
     // broadcast -> allows us to send something to everyone but self
-    socket.broadcast.emit("receive_message", data);
+    // socket.broadcast.emit("receive_message", data);
+
+    // send data to everyone in the same room:
+    // to -> specifies where we want to emit the specific data
+    socket.to(data.room).emit("receive_message", data);
   });
 });
 
